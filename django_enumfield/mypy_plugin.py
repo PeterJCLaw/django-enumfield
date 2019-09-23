@@ -30,9 +30,16 @@ def enum_function_hook(ctx: DynamicClassDefContext) -> None:
             FOO = FooItem(10, 'foo')
     """
     # Work out the base -- build up `Enum[FooItem]`
-    # TODO: should probably build a union if there's more than one type
-    # (rather than erroring).
-    item_typeinfo, = set(x.callee.node for x in ctx.call.args[1:])
+    argument_types = set(x.callee.node for x in ctx.call.args[1:])
+    if argument_types:
+        # TODO: should probably build a union if there's more than one type
+        # (rather than erroring).
+        item_typeinfo, = argument_types
+    else:
+        item_sym = ctx.api.lookup_fully_qualified('django_enumfield.Item')
+        assert isinstance(item_sym.node, TypeInfo)
+        item_typeinfo = item_sym.node
+
     base_enum_typeinfo = ctx.call.callee.node
 
     item_type = Instance(item_typeinfo, [])
