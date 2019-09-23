@@ -1,6 +1,6 @@
 import random
 
-from django_enumfield import EnumField
+from django_enumfield import EnumField, Item
 
 from django.db import models
 
@@ -17,6 +17,7 @@ class TestModelNull(models.Model):
 
 
 def random_default():
+    # type: () -> Item
     return random.choice(TestModelEnum)
 
 

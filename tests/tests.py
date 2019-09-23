@@ -15,9 +15,13 @@ from django_enumfield.utils import TemplateErrorException
 from .enums import TestModelEnum
 from .models import TestModel, TestModelNull, TestModelRandomDefault
 
+if False:
+    from typing import Any, Dict, List, Type
+
 
 class ItemTests(unittest.TestCase):
     def test_item(self):
+        # type: () -> None
         item = Item(10, 'slug', "Display")
 
         self.assertEqual(item.value, 10)
@@ -35,18 +39,22 @@ class ItemTests(unittest.TestCase):
             Item(10, 'slug', 999)
 
     def test_str(self):
+        # type: () -> None
         self.assertEqual(str(Item(10, 'slug', "display")), 'slug')
 
     def test_repr(self):
+        # type: () -> None
         self.assertEqual(
             repr(Item(10, 'slug', "display")),
             "<enum.Item: 10 slug 'display'>",
         )
 
     def test_hash(self):
+        # type: () -> None
         self.assertEqual(hash(Item(10, 'slug', "display")), 10)
 
     def test_eq(self):
+        # type: () -> None
         item1 = Item(10, 'slug', "display")
         item2 = Item(10, 'slug', "display")
         item3 = Item(20, 'slug3', "display")
@@ -59,6 +67,7 @@ class ItemTests(unittest.TestCase):
         self.assertNotEqual(item2, 'slug2')
 
     def test_comparison(self):
+        # type: () -> None
         item1 = Item(10, 'slug1', "display1")
         item2 = Item(20, 'slug2', "display2")
         item2_copy = Item(20, 'slug2', "display2")
@@ -69,6 +78,7 @@ class ItemTests(unittest.TestCase):
         self.assertLessEqual(item2, item2_copy)
 
     def test_lazy_translation_in_display(self):
+        # type: () -> None
         item = Item(10, 'slug', _("Display"))
         self.assertEqual(item.display, "Display")
 
@@ -77,6 +87,7 @@ class EnumConstructionTests(unittest.TestCase):
     longMessage = True
 
     def test_instance_based_enum(self):
+        # type: () -> None
         FooEnum = Enum(
             'FooEnum',
             Item(10, 'a', "Item A"),
@@ -89,6 +100,7 @@ class EnumConstructionTests(unittest.TestCase):
         self.assertEqual(FooEnum.from_value(10).slug, 'a')
 
     def test_dynamic_enum(self):
+        # type: () -> None
         FooEnum = Enum('FooEnum')
         FooEnum.add_item(Item(10, 'a', "Item A"))
         FooEnum.add_item(Item(20, 'b', "Item B"))
@@ -99,6 +111,7 @@ class EnumConstructionTests(unittest.TestCase):
         self.assertEqual(FooEnum.from_value(10).slug, 'a')
 
     def test_dynamic_enum_rejects_duplicate_value(self):
+        # type: () -> None
         FooEnum = Enum('FooEnum')
         FooEnum.add_item(Item(10, 'a', "Item A"))
 
@@ -106,6 +119,7 @@ class EnumConstructionTests(unittest.TestCase):
             FooEnum.add_item(Item(10, 'b', "Item B"))
 
     def test_dynamic_enum_rejects_duplicate_slug(self):
+        # type: () -> None
         FooEnum = Enum('FooEnum')
         FooEnum.add_item(Item(10, 'a', "Item A"))
 
@@ -113,6 +127,7 @@ class EnumConstructionTests(unittest.TestCase):
             FooEnum.add_item(Item(20, 'a', "Item B"))
 
     def test_simple_registry_enum(self):
+        # type: () -> None
         FooEnum = Enum('FooEnum')
 
         class A(Item):
@@ -134,6 +149,7 @@ class EnumConstructionTests(unittest.TestCase):
 
     @override_settings(ENUMFIELD_EXPLICIT_SLUGS=True)
     def test_simple_registry_enum_with_explicit_slugs(self):
+        # type: () -> None
         FooEnum = Enum('FooEnum')
 
         class A(Item):
@@ -157,6 +173,7 @@ class EnumConstructionTests(unittest.TestCase):
 
     @override_settings(ENUMFIELD_EXPLICIT_SLUGS=True)
     def test_slug_missing_with_explicit_slugs_s(self):
+        # type: () -> None
         FooEnum = Enum('FooEnum')
 
         # Should be able to create helpers which have neither slug nor value
@@ -181,12 +198,14 @@ class EnumConstructionTests(unittest.TestCase):
         self.assertEqual(len(FooEnum), 0)
 
     def test_registry_without_parent(self):
+        # type: () -> None
         FooEnum = Enum('FooEnum')
 
         class FooEnumItem(Item):
             __enum__ = FooEnum
 
             def display_extended(self):
+                # type: () -> str
                 return "%s (%s)" % (self.display, self.value)
 
         class A(FooEnumItem):
@@ -207,6 +226,7 @@ class EnumConstructionTests(unittest.TestCase):
 
 class EnumTests(unittest.TestCase):
     def setUp(self):
+        # type: () -> None
         super(EnumTests, self).setUp()
 
         FooEnum = Enum(
@@ -228,16 +248,18 @@ class EnumTests(unittest.TestCase):
         self.large_enum = LargeEnum
 
     def test_from_value(self):
+        # type: () -> None
         self.assertEqual(self.enum.from_value(10).slug, 'a')
 
         with self.assertRaises(ValueError):
             self.enum.from_value('a')
 
     def test_from_slug(self):
+        # type: () -> None
         self.assertEqual(self.enum.from_slug('b').value, 20)
 
         with self.assertRaises(TypeError):
-            self.enum.from_slug(20)
+            self.enum.from_slug(20)  # type: ignore
 
         with self.assertRaises(ValueError) as cm:
             self.enum.from_slug('nope')
@@ -282,6 +304,7 @@ class EnumTests(unittest.TestCase):
         )
 
     def test_get_choices(self):
+        # type: () -> None
         self.assertEqual(
             self.enum.get_choices(),
             [
@@ -291,6 +314,7 @@ class EnumTests(unittest.TestCase):
         )
 
     def test_to_python(self):
+        # type: () -> None
         self.assertEqual(self.enum.to_python(''), None)
         self.assertEqual(self.enum.to_python(None), None)
 
@@ -308,6 +332,7 @@ class EnumTests(unittest.TestCase):
             self.enum.to_python('not_a_slug')
 
     def test_repr(self):
+        # type: () -> None
         self.assertEqual(
             repr(self.enum),
             "<FooEnum: [%r, %r]>" % (self.enum.A, self.enum.B),
@@ -316,15 +341,18 @@ class EnumTests(unittest.TestCase):
 
 class FieldTests(DjangoTestCase):
     def assertCreated(self, num=1):
+        # type: (int) -> None
         self.assertEqual(TestModel.objects.count(), num)
 
     def test_model_instantiate(self):
+        # type: () -> None
         TestModel(
             test_field=TestModelEnum.A,
             test_field_no_default=TestModelEnum.B,
         )
 
     def test_model_creation(self):
+        # type: () -> None
         TestModel.objects.create(
             test_field=TestModelEnum.A,
             test_field_no_default=TestModelEnum.B,
@@ -333,11 +361,13 @@ class FieldTests(DjangoTestCase):
         self.assertCreated()
 
     def test_model_instantiate_using_defulat(self):
+        # type: () -> None
         TestModel(
             test_field_no_default=TestModelEnum.B,
         )
 
     def test_model_creation_using_defulat(self):
+        # type: () -> None
         TestModel.objects.create(
             test_field_no_default=TestModelEnum.B,
         )
@@ -345,31 +375,37 @@ class FieldTests(DjangoTestCase):
         self.assertCreated()
 
     def test_model_instantiate_without_default(self):
+        # type: () -> None
         TestModel(
             test_field=TestModelEnum.A,
         )
 
     def test_model_creation_without_default(self):
+        # type: () -> None
         with self.assertRaises(IntegrityError):
             TestModel.objects.create(
                 test_field=TestModelEnum.A,
             )
 
     def test_field_default(self):
+        # type: () -> None
         model = TestModel.objects.create(test_field_no_default=TestModelEnum.B)
         self.assertEqual(model.test_field, TestModelEnum.A)
 
     def test_field_from_slug(self):
+        # type: () -> None
         model = TestModel.objects.create(test_field_no_default='a')
         self.assertCreated()
         self.assertEqual(model.test_field_no_default, TestModelEnum.A)
 
     def test_field_from_value(self):
+        # type: () -> None
         model = TestModel.objects.create(test_field_no_default=20)
         self.assertCreated()
         self.assertEqual(model.test_field_no_default, TestModelEnum.B)
 
     def test_field_converts_to_python(self):
+        # type: () -> None
         model1 = TestModel(test_field_no_default='a')
         self.assertEqual(model1.test_field_no_default, TestModelEnum.A)
 
@@ -377,6 +413,7 @@ class FieldTests(DjangoTestCase):
         self.assertEqual(model2.test_field_no_default, TestModelEnum.B)
 
     def test_query(self):
+        # type: () -> None
         m1 = TestModel.objects.create(test_field_no_default=TestModelEnum.A)
         TestModel.objects.create(test_field_no_default=TestModelEnum.B)
 
@@ -401,9 +438,11 @@ class FieldTests(DjangoTestCase):
         )
 
     def test_null_field(self):
+        # type: () -> None
         TestModelNull.objects.create(test_field_null=None)
 
     def test_field_lookup(self):
+        # type: () -> None
         TestModelNull.objects.create(test_field_null=None)
         m2 = TestModelNull.objects.create(test_field_null=TestModelEnum.A)
 
@@ -414,6 +453,7 @@ class FieldTests(DjangoTestCase):
         self.assertEqual(list(query), [m2])
 
     def test_field_lookup_in_slugs(self):
+        # type: () -> None
         TestModelNull.objects.create(test_field_null=None)
         m2 = TestModelNull.objects.create(test_field_null=TestModelEnum.A)
 
@@ -422,6 +462,7 @@ class FieldTests(DjangoTestCase):
         self.assertEqual(list(query), [m2])
 
     def test_field_lookup_in_values(self):
+        # type: () -> None
         TestModelNull.objects.create(test_field_null=None)
         m2 = TestModelNull.objects.create(test_field_null=TestModelEnum.A)
 
@@ -430,14 +471,17 @@ class FieldTests(DjangoTestCase):
         self.assertEqual(list(query), [m2])
 
     def test_field_lookup_in_non_existent_slug_fails(self):
+        # type: () -> None
         with self.assertRaises(ValueError):
             TestModel.objects.filter(test_field__in=('not_a_slug',))
 
     def test_field_lookup_in_non_existent_value_fails(self):
+        # type: () -> None
         with self.assertRaises(ValueError):
             TestModel.objects.filter(test_field__in=(999,))
 
     def test_isnull(self):
+        # type: () -> None
         m1 = TestModelNull.objects.create(test_field_null=None)
         TestModelNull.objects.create(test_field_null=TestModelEnum.A)
 
@@ -448,30 +492,35 @@ class FieldTests(DjangoTestCase):
 
 class TemplateTests(DjangoTestCase):
     def test_renders_template(self):
+        # type: () -> None
         self.assertEqual(
             render_to_string('test.html', {}, request=HttpRequest()),
             "Item A, Item B\n",
         )
 
     def test_fails_loudly_for_invalid_app(self):
+        # type: () -> None
         with self.assertRaises(TemplateErrorException):
             render_to_string('invalid.html', {}, request=HttpRequest())
 
 
 class UtilsTests(unittest.TestCase):
     def test_get_enum_or_404_valid(self):
+        # type: () -> None
         self.assertEqual(
             get_enum_or_404(TestModelEnum, 'a'),
             TestModelEnum.A,
         )
 
     def test_get_enum_or_404_invalid(self):
+        # type: () -> None
         with self.assertRaises(Http404):
             get_enum_or_404(TestModelEnum, 'not_a_slug')
 
 
 class MigrationUnitTests(DjangoTestCase):
     def assertDeconstruct(self, model_class, field, exp_args, exp_kwargs):
+        # type: (Type[models.Model], str, List[Any], Dict[str, Any]) -> None
         model = model_class()
         name, path, args, kwargs = model._meta.get_field(field).deconstruct()
         self.assertEqual(name, field)
@@ -480,12 +529,15 @@ class MigrationUnitTests(DjangoTestCase):
         self.assertEqual(kwargs, exp_kwargs)
 
     def test_deconstruct(self):
+        # type: () -> None
         self.assertDeconstruct(TestModel, 'test_field', [], {'default': 10})
 
     def test_deconstruct_no_default(self):
+        # type: () -> None
         self.assertDeconstruct(TestModel, 'test_field_no_default', [], {})
 
     def test_deconstruct_null(self):
+        # type: () -> None
         self.assertDeconstruct(
             TestModelNull,
             'test_field_null',
@@ -494,6 +546,7 @@ class MigrationUnitTests(DjangoTestCase):
         )
 
     def test_deconstruct_callable_default(self):
+        # type: () -> None
         self.assertDeconstruct(
             TestModelRandomDefault,
             'test_field',
@@ -502,6 +555,7 @@ class MigrationUnitTests(DjangoTestCase):
         )
 
     def test_field_clone(self):
+        # type: () -> None
         model = TestModel()
         field = model._meta.get_field('test_field_no_default')
         clone = field.clone()
@@ -510,6 +564,7 @@ class MigrationUnitTests(DjangoTestCase):
         self.assertEqual(clone.default, NOT_PROVIDED)
 
     def test_field_clone_with_default(self):
+        # type: () -> None
         model = TestModel()
         field = model._meta.get_field('test_field')
         clone = field.clone()
